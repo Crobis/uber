@@ -15,46 +15,12 @@ from .forms import ModifyNote, SearchForm
 from core.helpers import is_ajax
 
 
-import mysql.connector
-
 @login_required
 def index(request):
 
 
 
 
-
-    mydb = mysql.connector.connect(
-        host="192.168.88.103",
-        user="ameda",
-        password="ameda",
-        database="ameda"
-    )
-
-    cursor = mydb.cursor()
-
-
-
-    cursor.execute("SELECT * FROM `ameda`.`gfyhp_woocommerce_order_itemmeta` WHERE `order_item_id` = '12887'")
-    new_order = cursor.fetchall()
-
-    cursor.execute("SELECT * FROM `ameda`.`gfyhp_woocommerce_order_itemmeta` WHERE `order_item_id` = '12946'")
-    old_order = cursor.fetchall()
-
-    data = {}
-    for row in old_order:
-        print(row)
-        if row[2] not in data:
-            data[row[2]] = [row[3],'']
-        else:
-            data[row[2]][0] = row[3]
-
-        for nrow in new_order:
-            if nrow[2] not in data:
-                data[nrow[2]] = ['',nrow[3]]
-            else:
-                data[nrow[2]][1] = nrow[3]
-    
 
 
 
