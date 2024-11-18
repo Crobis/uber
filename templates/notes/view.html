@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+
+
+{% block main_content %}
+  
+  <article class="blog-post">
+    <h2>
+        <a href="{% url 'notes:view_note' note.id %}">{{note.title}}</a>
+        {% if request.user == note.info.user_created %}
+        <a href="{% url 'notes:edit_note' note.id %}" class="edit-note"><i class="bi bi-pencil-square"></i></a>
+        {% endif %}
+    </h2>
+
+    {% autoescape off %}
+    <p>{{note.get_html}}</p>
+    {% endautoescape %}
+
+    {% for tag in note.tags.all %}
+        <button type="button" class="btn btn-primary btn-sm"  style="--bs-btn-padding-y: .15rem; --bs-btn-padding-x: .3rem; --bs-btn-font-size: .75rem;">{{tag.title}}</button>
+    {% endfor %}
+
+  </article>
+{% endblock %}
+
+
+
+  {% block footer %} 
+    {% if not public_view %}{{ block.super }}{% endif %} 
+  {%endblock%}
+
+  {% block top_menu %} 
+    {% if not public_view %}{{ block.super }}{% endif %} 
+  {%endblock%}
+  
+  {% block side_content %} 
+    {% if not public_view %}{{ block.super }}{% endif %}
+  {%endblock%}

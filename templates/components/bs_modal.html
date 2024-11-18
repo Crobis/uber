@@ -1,0 +1,43 @@
+<div class="modal-dialog modal-dialog-centered " >
+    <div class="modal-content">
+        {% block modal_header %}
+        {%if data.show.header %}
+        <div class="modal-header">
+            {%if data.title%}
+            <h5 class="modal-title">{{data.title}}</h5>
+            {%endif%}
+        </div>
+        {%endif%}
+        {% endblock %}
+        
+        {% block modal_body %}
+        <div class="modal-body">
+            
+            {{data.body}} 
+
+
+            {%if not data.show.footer and data.buttons%}
+            <div class="float-end mt-3">
+                {%for button in data.buttons%}
+                {{button}}
+                {%endfor%}
+            </div>
+            {%endif%}
+        </div>
+        {% endblock %}
+        
+        {% block modal_footer %}
+        {%if data.show.footer %}
+            <div class="modal-footer">
+                {%if data.buttons%}
+                    {%for button in data.buttons%}
+                    {{button}}
+                    {%endfor%}
+                {%else%}
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                {%endif%}
+            </div>           
+        {%endif%}
+        {% endblock %}
+    </div>
+</div>

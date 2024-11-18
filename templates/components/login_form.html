@@ -1,0 +1,16 @@
+{% load page %}
+<form class="px-5 mt-5 {%if initial %}closed{% endif %}" id="login-form" hx-target="this" hx-swap="outerHTML" hx-post="{% url "login" %}">
+
+
+    {% for field in login_form.visible_fields %}
+    <div class="form-floating my-2">
+        {{ field|add_classes:'form-control'}}
+        <!-- <input type="text" class="form-control form-control-sm" id="user-input" placeholder="User" name="username"> -->
+        <label for="floatingInput">{{field.label}}</label>
+    </div>
+
+
+    {%endfor%}
+    {{login_form.errors}}
+    <button class="w-100 btn btn-lg btn-primary"  type="submit">Sign in</button>
+</form>

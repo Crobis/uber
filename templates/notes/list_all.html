@@ -1,15 +1,42 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-  {% block styles %}
-  <link rel="stylesheet" href="{% static 'css/app.css' %}">
-  {% endblock %}
-<body>
 
-<h1 class="underline color-red">My First Heading</h1>
-<p>My first paragraph.</p>
 
-<button class="cursor-pointer drop-shadow-sm border-black">Poga</button>
+{% block side_toolbar %}
+    <a href="{% url 'notes:add_note' %}" class="btn btn-primary w-100 my-1"><i class="bi bi-pencil-square"></i> Add note</a>
+{% endblock %}
 
-</body>
-</html>
+{% block main_content %}
+{% if search_form.search.value %}
+    <h1>Search results for: <i>{{search_form.search.value}}</i></h1>
+{% endif %}
+{% for note in notes%}
+<article class="blog-post">
+    <h2>
+        <a href="{% url 'notes:view_note' note.id %}">{{note.title}}</a>
+        <a href="{% url 'notes:edit_note' note.id %}" class="edit-note"><i class="bi bi-pencil-square"></i></a>
+    </h2>
+
+    {% autoescape off %}
+    <p>{{note.get_html|truncatechars_html:250 }}</p>
+    {% endautoescape %}
+
+    {% for tag in note.tags.all %}
+        <a type="button" class="btn btn-primary btn-sm"  style="--bs-btn-padding-y: .15rem; --bs-btn-padding-x: .3rem; --bs-btn-font-size: .75rem;" href="{% url 'notes:view_tag' tag.id %}">{{tag.title}}</a>
+    {% endfor %}
+    <!-- <p class="info">
+        January 1, 2021 by 
+        <a href="#">Mark</a>
+    </p> -->
+
+
+</article>
+<div class="divider"></div>
+{% endfor %}
+
+{% endblock %}
+
+{% block scripts %}{{ block.super }}
+
+{% endblock %}
+

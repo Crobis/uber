@@ -34,3 +34,7 @@ def add_classes(value, arg):
             css_classes.append(a)
     # join back to single string
     return value.as_widget(attrs={'class': ' '.join(css_classes)})
+
+@register.filter
+def build_path(theme, path):
+    return f"{theme}/{path}"

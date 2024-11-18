@@ -1,0 +1,123 @@
+
+{% load static page %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.84.0">
+    <title>uber</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/blog/">
+    
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet"> -->
+    <link href="https://fonts.googleapis.com/css2?family=Electrolize&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <style>
+
+        * {
+            /* font-family: "Rubik", sans-serif; */
+            font-family: "Electrolize", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+
+            border-radius: 0 !important;
+        }
+        button > * {
+            pointer-events: none;
+        }
+        .vh-75 {
+            height: 75vh;
+        }
+        .w-800{
+            width:450px;
+        }
+
+        .form-floating>.form-control,
+        .form-floating>.form-control-plaintext {
+            padding: 0rem 0.75rem;
+        }
+
+        .form-floating>.form-control,
+        .form-floating>.form-control-plaintext,
+        .form-floating>.form-select {
+            height: calc(2.5rem + 2px);
+            line-height: 1;
+        }
+
+        .form-floating>label {
+            padding: 0.5rem 0.75rem;
+        }
+
+
+    #login-form {
+        
+        /* max-height: 200px;  */
+
+        transition-property: all;
+        transition-duration: .5s;
+        transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+    }
+
+    #login-form.closed {
+        max-height: 0;
+        overflow-y: hidden;
+    }
+
+
+    </style>
+</head>
+
+    
+<body>
+  
+    <div class="d-flex align-items-center justify-content-center vh-75 ">
+        <div class="row w-800">
+            <div class="col-md-12">
+                <a href="#" id="logo"><img src="{% static "images/uber.webp" %}" alt="uber" /></a>
+            </div>            
+            {% include "components/login_form.html" %}
+        </form>
+    </div>
+ 
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/2.0.3/htmx.min.js" integrity="sha512-dQu3OKLMpRu85mW24LA1CUZG67BgLPR8Px3mcxmpdyijgl1UpCM1RtJoQP6h8UkufSnaHVRTUx98EQT9fcKohw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="{% static 'js/app.bundle.js' %}" data-csrftoken="{{ csrf_token }}"></script>
+
+<script>
+
+    document.getElementById('logo').addEventListener("dblclick", function(evt){
+        let login_form = document.getElementById('login-form');
+        if(login_form.classList.contains('closed')){
+            document.getElementById('login-form').classList.remove('closed');
+        }else{
+            document.getElementById('login-form').classList.add('closed');
+        }
+    })
+
+    document.body.addEventListener("htmx:responseError", function(e) {
+        error = e.detail.xhr.response;
+        console.log(error)
+        // showModal({title: 'Error', content: 'Server encountered error', type: 'alert', btn1: 'Ok' })
+    });
+
+
+</script>
+
+    
+</body>
+</html>

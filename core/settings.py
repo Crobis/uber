@@ -129,14 +129,14 @@ STATICFILES_FINDERS = (
     # other finders..
     # 'compressor.finders.CompressorFinder',
 )
-STATIC_ROOT = BASE_DIR / 'assets' / 'dist'
-STATICFILES_DIRS = [
-    BASE_DIR / 'assets' / 'src',
-]
+# STATIC_ROOT = BASE_DIR / 'assets' / 'dist'
+# STATICFILES_DIRS = [
+#     BASE_DIR / 'assets' / 'src',
+# ]
 if DEBUG:
     STATIC_ROOT = BASE_DIR / 'assets' / 'fakepath'
     STATICFILES_DIRS = [
-        BASE_DIR / 'assets' / 'src',
+        # BASE_DIR / 'assets' / 'src',
         BASE_DIR / 'assets' / 'dist',
     ]
 

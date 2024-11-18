@@ -1,0 +1,137 @@
+{% load static %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<style>
+    body{
+        /* background-color: #403D39; */
+        /* -webkit-backface-visibility: hidden; */
+    }
+
+    #editorjs{
+        position: relative;
+        padding: 1rem;
+        margin: 1rem -0.75rem 0;
+        border: solid #dee2e6;
+        border-width: 1px;
+
+        /* border-radius: 10px; */
+        width: 1200px;
+        margin: 0 auto;
+        padding-top: 20px;
+
+        /* box-shadow: 1px -1px 5px 0px rgba(37,36,34,0.75);
+        -webkit-box-shadow: 1px -1px 5px 0px rgba(37,36,34,0.75);
+        -moz-box-shadow: 1px -1px 5px 0px rgba(37,36,34,0.75); */
+    }
+    .codex-editor__loader { height: 20px !important; }
+    .ce-block__content, .ce-toolbar__content { max-width:calc(100% - 80px) !important; } .cdx-block { max-width: 100% !important; }
+</style>
+
+{%for p in pictures%}
+<img src="{{p.pic.url}}" style="width:500px" /> <br />
+<img src="{{p.big_view.url}}" style="width:500px" /> <br />
+{%endfor%}
+
+
+<!-- https://coolors.co/palette/cfdbd5-e8eddf-f5cb5c-242423-333533 -->
+
+<div id="editorjs"></div>
+<button class="save">save</button>
+
+<script src="{% static 'js/lib/editorjs/editorjs.min.js' %}"></script>
+<script src="{% static 'js/lib/editorjs/tools/editorj-nested-list.js' %}"></script>
+<script src="{% static 'js/lib/editorjs/tools/editorjs-header.js' %}"></script>
+
+
+
+<script src="{% static 'js/lib/editorjs/tools/editorjs-codebox.min.js' %}"></script>
+
+<script src="{% static 'js/lib/editorjs/tools/paragraph.umd.js' %}"></script>
+<script src="{% static 'js/lib/require.js' %}"></script>
+
+
+
+
+
+
+<script>
+
+
+
+document.body.addEventListener("click", function(e){
+
+    const target = e.target.closest(".save"); // Or any other selector.
+
+
+    if(target){
+        
+        editor.save().then((savedData) => {
+            console.log(savedData)    
+        })
+        
+    }
+});
+
+class SimpleImage {
+  static get toolbox() {
+    return {
+      title: 'Image',
+      icon: '<svg width="17" height="15" viewBox="0 0 336 276" xmlns="http://www.w3.org/2000/svg"><path d="M291 150V79c0-19-15-34-34-34H79c-19 0-34 15-34 34v42l67-44 81 72 56-29 42 30zm0 52l-43-30-56 30-81-67-66 39v23c0 19 15 34 34 34h178c17 0 31-13 34-29zM79 0h178c44 0 79 35 79 79v118c0 44-35 79-79 79H79c-44 0-79-35-79-79V79C0 35 35 0 79 0z"/></svg>'
+    };
+  }
+
+  render(){
+    return document.createElement('input');
+  }
+
+  save(blockContent){
+    return {
+      url: blockContent.value
+    }
+  }
+}
+
+// for(var b in window) { 
+//   if(window.hasOwnProperty(b)) console.log(b); 
+// }
+
+// 
+// const CodeBox = require('CodeBox');
+
+
+
+const editor = new EditorJS({
+    holder : 'editorjs',
+    config: {
+        minHeight: 10,
+    },
+    tools: {
+        // paragraph: {
+        //     class: Paragraph,
+        //     inlineToolbar: true,
+        // },
+        // codeBox: {
+        //     class: CodeBox,
+        //     config: {
+        //         themeURL: 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/styles/dracula.min.css', // Optional
+        //         themeName: 'atom-one-dark', // Optional
+        //         useDefaultTheme: 'light' // Optional. This also determines the background color of the language select drop-down
+        //     }
+        // },
+        header: {
+            class: Header,
+            config: {
+                placeholder: 'Enter a header',
+                levels: [2, 3, 4],
+                defaultLevel: 2
+            }
+        },
+        list: {
+            class: NestedList,
+            inlineToolbar: true,
+            config: {
+                defaultStyle: 'unordered'
+            },
+        },
+    }
+  })
+</script>

@@ -8,9 +8,10 @@ from page.forms import SearchForm
 
 
 
+def get_theme(request):
+    return 'old'
 
 def build_top_menu(request, url=None):
-
     menu = [
         ['Home','/'],
         ['Tags','/tags/'],

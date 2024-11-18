@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+    body{
+        /* background-color: #403D39; */
+        /* -webkit-backface-visibility: hidden; */
+        line-height: normal;
+    }
+
+    * {
+        border-radius: 0 !important;
+    }
+
+    .treasure{
+        width: 100%;
+        min-height: 20px !important;
+    }
+    .container-1000{
+        max-width: 1000px;
+        /* padding-right: var(--bs-gutter-x, 0.75rem); */
+        /* padding-left: var(--bs-gutter-x, 0.75rem); */
+        margin-right: auto;
+        margin-left: auto;
+    }
+</style>
+
+
+
+
+
+{% block main_content %}
+{%if htxm_request%}<div hx-swap-oob="innerHTML:#main_content">{%endif%}
+    <h3 class="m-0 mb-3 p-0"> {{random_string}} 
+
+        <button hx-get="{% url 'vault:add_treasure' %}" class="btn btn-primary float-end m-0"  hx-target=".list-group" hx-swap="afterbegin">
+            Add new
+        </button>
+
+    </h3>
+
+    <ul class="list-group ">
+    {% for treasure in data %}
+        {% include 'vault/components/list_treasure.html'%}
+    {% endfor %}
+    </ul>
+
+
+    <!-- <button 
+        hx-target="#main_modal" 
+        hx-trigger="click" 
+        data-bs-toggle="modal" 
+        data-bs-target="#main_modal"
+        class="btn btn-primary">Open Modal
+    </button>
+
+    <button 
+        id="open_modal_test"
+        class="btn btn-primary">Open Modal 2
+    </button> -->
+    {%if htxm_request%}</div>{%endif%}
+{% endblock %}
+
+
+
+
+
+
+
+
+<div id="main_modal" class="modal modal-blur fade" style="display: none" aria-hidden="false" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">a</div>
+    </div>
+</div>
+
+
+<script>
+
+
+
+document.body.addEventListener("showModal", function(evt){
+    let modal_element = document.getElementById('main_modal');
+    modal_element.innerHTML = evt.detail.value;
+    let modal = bootstrap.Modal.getOrCreateInstance(modal_element);
+    modal.show();    
+    htmx.process(htmx.find('#main_modal'))
+})
+
+document.body.addEventListener("hideModal", function(evt){
+    let modal_element = document.getElementById('main_modal');
+    let modal = bootstrap.Modal.getOrCreateInstance(modal_element);
+    modal.hide();    
+    htmx.process(htmx.find('#main_modal'))
+})
+
+
+
+
+
+</script>
+
+<!-- Beverly Hills Cop
+Die Hard 
+Harry Potter
+Mortal Kombat
+Pirates of carabean
+Matrix -->

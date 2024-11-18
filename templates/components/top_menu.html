@@ -1,0 +1,35 @@
+
+<div class="row">
+    <a href="#" class="text-end">{{user}}</a> 
+</div>
+
+<nav class="navbar navbar-expand-lg bg-light my-3" id="top_menu">
+
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">uber</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                {% for link in menu%}
+                <li class="nav-item">
+                    <!-- <a class="nav-link active" aria-current="page" href="{{link.1}}" hx-get="{{link.1}}" hx-push-url="true" hx-swap="none">{{link.0}}</a> -->
+                    <a class="nav-link active" aria-current="page" href="{{link.1}}">{{link.0}}</a>
+                </li>
+                {% endfor %}
+
+                <li class="nav-item">
+                    <a class="nav-link disabled">Disabled</a>
+                </li>
+            </ul>
+            <form class="d-flex" role="search" method="get" action="/">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search" value="{{main_search_form.search.value}}">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+
+</nav>
+

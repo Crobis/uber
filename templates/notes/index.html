@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block side_toolbar %}
+    <button class="btn btn-primary">Add new</button>
+   
+    <br /><br />
+{% endblock %}
+
+{% block main_content %}
+
+<table class="table">
+{%for d in data%}
+<tr>
+    <td>{{d.0}}</td>
+    <td>{{d.1.0}}</td>
+    <td>{{d.1.1}}</td>
+</tr>
+
+{%endfor%}
+</table>
+
+
+
+
+<form hx-target="this" hx-swap="outerHTML">
+    {{form}} <br />
+
+    <div id="editor"></div>
+    <br />
+    
+    <button class="btn btn-outline-primary" hx-post="{{action_url}}">
+        <i class="bi bi-floppy2-fill" title="Save"></i>
+        <i class="spinner-border spinner-border-sm htmx-indicator"></i>   
+        Save
+    </button>
+</form>
+{% endblock %}
+
+
+{% block scripts %}{{ block.super }}
+<script src="{% static 'js/lib/toast-ui/toastui-editor-all.min.js' %}"></script>
+
+<!-- <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script> -->
+<!-- <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script> -->
+<script>
+    function createLastButton() {
+        const button = document.createElement('button');
+
+        button.className = 'toastui-editor-toolbar-icons last';
+        button.style.backgroundImage = 'none';
+        button.style.margin = '0';
+        button.innerHTML = `<i>B</i>`;
+        button.addEventListener('click', () => {
+          editor.exec('bold');
+        });
+
+        return button;
+    }
+
+    const editor = new toastui.Editor({
+        el: document.querySelector('#editor'),
+        height: '500px',
+        // initialValue: content,
+        initialEditType: 'wysiwyg',
+        // toolbarItems: [
+        //   ['heading', 'bold', 'italic', 'strike'],
+        //   ['hr', 'quote'],
+        //   ['ul', 'ol', 'task', 'indent', 'outdent'],
+        //   ['table', 'image', 'link'],
+        //   ['code', 'codeblock'],
+        //   // Using Option: Customize the last button
+        //   [{
+        //     el: createLastButton(),
+        //     command: 'bold',
+        //     tooltip: 'Custom Bold'
+        //   }]
+        // ]
+      });
+
+    editor.getMarkdown();
+
+
+
+
+    document.addEventListener('htmx:beforeProcessNode', (event) => {
+        console.log(event.target.classList)
+        // if (event.target.tagName === 'A') {
+        //     event.target.addEventListener('click', (event) => {
+        //     if (event.metaKey || event.shiftKey || event.ctrlKey) {
+        //         event.stopImmediatePropagation();
+        //     }
+        //     })
+        // }
+    });
+
+
+
+
+
+</script>
+{% endblock %}
+
+
+
+{% block styles %}{{ block.super }}
+<link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+{% endblock %}
