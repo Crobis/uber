@@ -32,8 +32,7 @@ old/
 
 # Django Static and Collected Files
 static/
-assets/src/fonts/*.ttf
-assets/src/images/*.webp
+
 
 # Generated Migrations or Database Dumps (Optional)
 db.sqlite3
