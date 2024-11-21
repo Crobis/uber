@@ -16,7 +16,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-from .local_settings import *
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -187,3 +187,6 @@ LOGGING = {
 }
 
 LOGIN_URL = "/login/"
+
+
+from .local_settings import *
