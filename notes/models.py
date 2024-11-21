@@ -242,6 +242,15 @@ class Picture(models.Model):
         super().save(*args,**kwargs)
 
 
+    def get_image_url(self, version):
+        try:
+            return getattr(self, version).url
+        except FileNotFoundError:
+            if version == 'thumbnail_square':
+                return '/static/images/placeholders/200x200.webp'
+            
+            return '/static/images/placeholders/1024x681.webp'
+
     # dzēš bildes un uzģenerētos thumbnailus pie, ja maina bildi tad dzēš vecās
     def delete_discarded_images(self, pic=None):
         paths = []

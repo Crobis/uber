@@ -19,6 +19,7 @@ package-lock.json
 
 # Tailwind, Webpack, and Build Artifacts
 assets/dist/
+assets/fakepath/
 *.css.map
 *.js.map
 webpack-stats.json

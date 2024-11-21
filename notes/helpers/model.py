@@ -49,24 +49,26 @@ def decode_block(block, theme='default'):
 
     elif block.type == 'linkTool':
         if block.data['meta']:
-            print(block.data['meta'])
+            # print(block.data['meta'])
             image = ''
             if 'image' in block.data['meta']:
                 if 'id' in block.data['meta']['image']:
                     
                     image = Picture.objects.filter(pk=block.data['meta']['image']['id']).first()
                     if image:
-                        image = image.thumbnail_square.url
+                        image = image.get_image_url('thumbnail_square')
+                        
+
                 else:
                     image = block.data['meta']['image']['url']
 
-
+            print('image',image)
             return '''
                 <div class="card linktool compact">                   
                     <div class="card-body">
                         <div class="card-image" style="background-image: url('{image}');"></div>
                         <h5 class="card-title">{title}</h5>                    
-                        <p class="card-text text-muted">{description}</p>
+                        <p class="card-text text-muted ">{description}</p>
                         <a href="{url}" class="card-link">{url}</a>                        
                     </div>
                 </div>
