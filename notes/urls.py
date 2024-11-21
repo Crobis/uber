@@ -1,12 +1,12 @@
 from django.urls import path, include
 
-from .views import list_notes, modify_note, list_tags, delete_note, view_note
+from .views import list_notes, modify_note, list_tags, delete_note, view_note, service_endpoint
 
 
 
 app_name = "notes"
 urlpatterns = [
-
+    path('service/<slug:service_type>/', service_endpoint, name='note_service_endpoint'),
 
     path('add/', modify_note, name='add_note'),
     path('edit/<int:note_id>/', modify_note, name='edit_note'),

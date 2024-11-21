@@ -13,14 +13,14 @@
 {% for note in notes%}
 <article class="blog-post">
     <h2>
-        <a href="{% url 'notes:view_note' note.id %}">{{note.title}}</a>
+        <a href="{% url 'notes:view_note' note.id %}">{{note.title}} {{note.id}}</a>
         <a href="{% url 'notes:edit_note' note.id %}" class="edit-note"><i class="bi bi-pencil-square"></i></a>
     </h2>
 
     {% autoescape off %}
-    <p>{{note.get_html|truncatechars_html:250 }}</p>
+    <p>{{ note.get_html }}</p>
     {% endautoescape %}
-
+    <!-- |truncatechars_html:250 -->
     {% for tag in note.tags.all %}
         <a type="button" class="btn btn-primary btn-sm"  style="--bs-btn-padding-y: .15rem; --bs-btn-padding-x: .3rem; --bs-btn-font-size: .75rem;" href="{% url 'notes:view_tag' tag.id %}">{{tag.title}}</a>
     {% endfor %}

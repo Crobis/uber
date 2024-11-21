@@ -5,16 +5,27 @@
 {% block main_content %}
 <h1>Add note</h1>
 <div id="editor-container">
-    <form id="editor-form" action="" method="post">
+    <!-- <form id="editor-form" action="" method="post">
         {% csrf_token %}
         {{form}}
 
         <button class="btn btn-success my-2">Save</button>
     </form>
-    <div id="editor"></div>
+    <div id="editor"></div> -->
+    <div id="editorjs"></div>
+    <button class="btn btn-success my-2" id="save-editorjs">Save</button>
+    <button class="btn btn-success my-2" id="load-editorjs">Load</button>
 </div>
+
+
+
 {% endblock %}
 
 {% block scripts %}{{ block.super }}
-<script src="{% static 'js/bundles/editor.bundle.js' %}" data-csrftoken="{{ csrf_token }}"></script>
+<script>
+    {% autoescape off %}
+    const editor_data = JSON.parse('{{ editor_data|escapejs }}');
+    {% endautoescape %}
+</script>
+<script src="{% static 'js/editor.bundle.js' %}" data-csrftoken="{{ csrf_token }}"></script>
 {% endblock %}

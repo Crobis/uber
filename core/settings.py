@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'vault',
     'notes',
     'django.contrib.staticfiles',
+    'sorl.thumbnail',
 ]
 
 MIDDLEWARE = [

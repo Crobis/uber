@@ -16,7 +16,13 @@
     "mini-css-extract-plugin": "^2.9.2",
     "postcss": "^8.4.49",
     "postcss-loader": "^8.1.1",
-    "tailwindcss": "^3.4.15",
     "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "@coolbytes/editorjs-link": "^1.0.0",
+    "@editorjs/editorjs": "^2.30.7",
+    "@editorjs/header": "^2.8.8",
+    "@editorjs/image": "^2.10.0",
+    "@editorjs/link": "^2.6.2"
   }
 }
