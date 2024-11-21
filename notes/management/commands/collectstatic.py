@@ -8,18 +8,18 @@ class Command(CollectStaticCommand):
         print('Running collectstatic 2')
         super().handle(*args, **options)
 
-        # Step 2: Run Tailwind CSS build process
-        try:
-            print("Running Tailwind CSS build...")
-            subprocess.run(
-                ["npm", "run", "build:css"],
-                cwd=self.get_project_root(),
-                check=True,
-            )
-            print("Tailwind CSS build completed successfully!")
-        except subprocess.CalledProcessError as e:
-            print(f"Error occurred while building Tailwind CSS: {e}")
-            raise
+        # # Step 2: Run Tailwind CSS build process
+        # try:
+        #     print("Running Tailwind CSS build...")
+        #     subprocess.run(
+        #         ["npm", "run", "build:css"],
+        #         cwd=self.get_project_root(),
+        #         check=True,
+        #     )
+        #     print("Tailwind CSS build completed successfully!")
+        # except subprocess.CalledProcessError as e:
+        #     print(f"Error occurred while building Tailwind CSS: {e}")
+        #     raise
 
     def get_project_root(self):
         """
