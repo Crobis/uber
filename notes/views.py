@@ -1,4 +1,8 @@
+import os
 import json
+import pprint
+import requests
+import tempfile
 from json.decoder import JSONDecodeError
 
 from django.views.decorators.csrf import csrf_exempt
@@ -8,12 +12,20 @@ from django.db.models import Q, Count
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
 
+
+from linkpreview import link_preview
+from linkpreview import Link, LinkPreview, LinkGrabber
+
+
 from page.context_processors import page_components
-from .models import Picture, Note, Tag,  save_info
+from .models import Picture, Note, Block, Tag, save_info
 from .forms import ModifyNote, SearchForm
 
-from core.helpers import is_ajax
+from core.helpers import is_ajax, is_integer
+from .helpers import get_image_from_url
 
+
+pp = pprint.PrettyPrinter(indent=0,  width=120)
 
 @login_required
 def index(request):
@@ -105,6 +117,75 @@ def view_note(request, note_id):
         'blocks': blocks 
     }) 
 
+
+
+
+
+def service_endpoint(request, service_type):
+    response = {'status': 'OK'}
+
+
+    if service_type == 'get_url':
+        response = { 'success' : 0 }
+        url = request.GET.get('url')
+        if url:
+
+            try:
+                grabber = LinkGrabber(
+                    initial_timeout=20,
+                    maxsize=10485760,
+                    receive_timeout=10,
+                    chunk_size=1024,
+                )
+                content, url = grabber.get_content(url)
+                link = Link(url, content)
+                preview = LinkPreview(link)
+
+                favicons = getattr(preview, 'favicon', [])
+                favicon = None
+                for fi in favicons:
+                    favicon = fi[0]
+                    break
+
+                meta = {
+                    'title': getattr(preview, 'title', None),
+                    'description': getattr(preview, 'description', None),
+                    'image': getattr(preview, 'image', None),
+                    'site_name': getattr(preview, 'site_name', None),
+                    'favicon': favicon,
+                }
+
+                if getattr(preview, 'absolute_image', None):
+                    meta['image'] = {
+                        'url':  getattr(preview, 'absolute_image', None)
+                    }
+                
+                if meta['image'] and meta['image']['url']:
+                    img_url = get_image_from_url(meta['image']['url'])
+                    if img_url:
+                        meta['image'] = img_url
+                
+                if meta['favicon']:
+                    img_url = get_image_from_url(meta['favicon'])
+                    if img_url:
+                        meta['favicon']= img_url
+
+                response['success'] = 1
+                response['meta'] = meta
+                # pp.pprint(meta)               
+            except Exception as e:
+                response['erros'] = e
+                print(f'Cant get url: {url} - {e}')
+
+
+
+
+
+
+    return JsonResponse(response)
+
+
+
 @login_required
 def modify_note(request, note_id=None):
     tags = ''
@@ -113,42 +194,112 @@ def modify_note(request, note_id=None):
         note = Note.objects.get(pk=note_id)
         tags = note.load_tags('json')
 
-    P = request.POST.copy()
+    # print('request.headers', request.headers)
+    # print('is_ajax', is_ajax(request))
 
-    if P:
-        form = ModifyNote(P, instance=note)
-        if form.is_valid():
-            note = form.save()
-            save_info(note, request)
-            tags = form.cleaned_data['tags']
 
-            try:
-                tags = json.loads(tags)
-            except JSONDecodeError as e:
-                tags = []
 
-            tags_from_post = []
-            for tag in tags:
-                tag_object, created = Tag.objects.get_or_create(
-                    title=tag['value'],
-                )
-                tags_from_post.append(tag_object)
-                save_info(tag_object, request)            
+    if is_ajax(request):
+        data = json.loads(request.body)
+        # print('data', data)
+        pp = pprint.PrettyPrinter(indent=0,  width=120)
+        pp.pprint(data)
 
-            note.tags.add(*tags_from_post)
-            for tag in note.tags.all():
-                if tag not in tags_from_post:
-                    note.tags.remove(tag)
+        action = data.get('action')
 
-            return redirect(reverse('notes:view_note', kwargs={'note_id': note.id} ))
+        if action == 'save':
 
-    else:
-        form = ModifyNote(instance=note, initial={'tags': tags})
+            blocks = data.get('blocks',[])
 
+            if len(blocks) > 0 and not note:
+                note = Note()
+                note.save()
+                data['redirect'] = reverse('notes:edit_note', kwargs={'note_id': note.id} )
+
+            used_ids = []
+            for i, block in enumerate(blocks):
+                
+                if is_integer(block['id']):
+                    b = Block.objects.get(note=note, id=block['id'])
+                else:
+                    b = Block(type = block['type'], note = note)
+
+                b.type = block['type']
+                b.data = block['data']
+                b.order = i
+                b.save()
+
+                save_info(b, request)
+                used_ids.append(b.id)
+
+            for block in Block.objects.filter(note=note).exclude(id__in=used_ids):
+                block.delete()
+
+            save_info(note, request) 
+                
+
+
+
+            pass 
+        elif action == 'load':
+            data =         {
+                "time": 1732051259177,
+                "blocks": [
+                {"id": 1, "type": "paragraph", "data": {"text": "asdasdasd"}},
+                {"id": 2, "type": "paragraph", "data": {"text": "asdasd"}},
+                {"id": 3, "type": "header", "data": {"text": "asddasd", "level": 2}}
+                ],
+                "version": "2.30.7"
+            }
+
+        return JsonResponse(data)
+        
+
+
+
+
+
+
+    # P = request.POST.copy()
+
+    # if P:
+    #     form = ModifyNote(P, instance=note)
+    #     if form.is_valid():
+    #         note = form.save()
+    #         save_info(note, request)
+    #         tags = form.cleaned_data['tags']
+
+    #         try:
+    #             tags = json.loads(tags)
+    #         except JSONDecodeError as e:
+    #             tags = []
+
+    #         tags_from_post = []
+    #         for tag in tags:
+    #             tag_object, created = Tag.objects.get_or_create(
+    #                 title=tag['value'],
+    #             )
+    #             tags_from_post.append(tag_object)
+    #             save_info(tag_object, request)            
+
+    #         note.tags.add(*tags_from_post)
+    #         for tag in note.tags.all():
+    #             if tag not in tags_from_post:
+    #                 note.tags.remove(tag)
+
+    #         return redirect(reverse('notes:view_note', kwargs={'note_id': note.id} ))
+
+    # else:
+    #     form = ModifyNote(instance=note, initial={'tags': tags})
+
+    editor_data = {}
+    if note:
+        editor_data = note.get_data_for_editor()
 
 
     return render(request, 'notes/add.html', {
-        'form': form,
+        'note': note,
+        'editor_data': editor_data
     }) 
 
 

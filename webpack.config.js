@@ -3,11 +3,17 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
     mode: 'development', // Change to 'production' for optimized builds
-    entry: './assets/src/js/app.js', // Entry point for your JS
+    entry: {
+        app: ['./assets/src/js/app.js', './assets/src/js/utils.js'],  
+        editor: './assets/src/js/editor.js', 
+
+      },
+
     output: {
+        filename: 'js/[name].bundle.js',
         path: path.resolve(__dirname, 'assets/dist/'), // Output folder
-        filename: 'js/bundle.js', // Output JS file
     },
+
     module: {
         rules: [
             {
@@ -15,7 +21,7 @@ module.exports = {
                 use: [
                     MiniCssExtractPlugin.loader,
                     'css-loader',
-                    'postcss-loader', // For Tailwind and autoprefixer
+                    // 'postcss-loader', // For Tailwind and autoprefixer
                 ],
             },
         ],

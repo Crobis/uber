@@ -25,7 +25,8 @@ from imagekit.processors import ResizeToFill, SmartCrop, ResizeToFit
 from translated_fields import TranslatedField
 
 
-from .helpers import PathAndRename, fallback_to_default_language
+from .helpers import PathAndRename, fallback_to_default_language, decode_block
+from core.helpers import getattrd
 
 
 def save_info(obj, request):
@@ -56,10 +57,7 @@ class Note(models.Model):
     archive             = models.BooleanField(_('Archive'), default=False)
     tags                = models.ManyToManyField('Tag')
     public_link         = models.SlugField('Public Url', blank=True, null=True, unique=True)
-
     info                = models.ForeignKey('Info', on_delete=models.CASCADE, blank=True, null=True)
-
-
 
     def save(self, *args, **kwargs):
         if self.description:
@@ -71,25 +69,47 @@ class Note(models.Model):
                     break 
 
         super().save(*args,**kwargs)
+        
 
+    def get_data_for_editor(self):
+        data = {'blocks': []}
+        blocks = Block.objects.filter(note=self)
+        for block in blocks:
+            data['blocks'].append({
+                "id": block.id, 
+                "type": block.type, 
+                "data": block.data
+            })
+        return json.dumps(data)
 
     def get_html(self):
-        # Split the text into lines
-        lines = self.description.splitlines()
 
-        for i, line in enumerate(lines):
-            if line.startswith("## "):
-                del lines[i]
-                # lines[i] = '## [{title}]({url})'.format(
-                #     url = reverse('notes:view_note', kwargs={'note_id': self.id} ),
-                #     title = line.lstrip('## ')
-                # )
-                break  
+        lines = ''
+        if self.id > 12:
+            blocks = Block.objects.filter(note=self)
+            for block in blocks:
+                print('block', block)
+                lines += decode_block(block)
+            return lines
+        else:
 
-        description = "\n".join(lines)
+            lines = ''
+            if self.description:
+                lines = self.description.splitlines()
 
-        md = markdown.Markdown(extensions=["fenced_code", "markdown_checklist.extension"])
-        return md.convert(description)
+            for i, line in enumerate(lines):
+                if line.startswith("## "):
+                    del lines[i]
+                    # lines[i] = '## [{title}]({url})'.format(
+                    #     url = reverse('notes:view_note', kwargs={'note_id': self.id} ),
+                    #     title = line.lstrip('## ')
+                    # )
+                    break  
+
+            description = "\n".join(lines)
+
+            md = markdown.Markdown(extensions=["fenced_code", "markdown_checklist.extension"])
+            return md.convert(description)
 
     def load_tags(self, return_format=None):
         tags = []
@@ -106,8 +126,50 @@ class Note(models.Model):
         ordering = ('-id',)
 
 
+class Block(models.Model):
+    BLOCK_TYPE = (
+        ('header', 'Header'), #'@editorjs/header'
+        ('paragraph', 'Paragraph'),
+        ('linkTool', 'LinkTool')
+    )
+    note = models.ForeignKey('Note', on_delete=models.CASCADE)
+    type = models.CharField( max_length=20, choices=BLOCK_TYPE )
+    data = models.JSONField(_('Data'), blank=True, null=True)
+    order = models.PositiveIntegerField('order', default=0)
+
+    info = models.ForeignKey('Info', on_delete=models.CASCADE, blank=True, null=True)
+
+    class Meta:
+        ordering = ('order',)
 
 
+    def save(self,*args,**kwargs):     
+        if self.type == 'linkTool':
+            for pic_id in [getattrd(self.data, 'meta.image.id'), getattrd(self.data, 'meta.favicon.id')]:
+                if pic_id:
+                    try:
+                        pic = Picture.objects.filter(pk=pic_id).first()
+                        if pic and pic.is_tmp:
+                            pic.is_tmp = False
+                            pic.session_key = None 
+                            pic.save()
+
+                    except Picture.DoesNotExist:
+                        pass
+
+        super().save(*args,**kwargs)
+
+    def delete(self,*args,**kwargs):
+        if self.type == 'linkTool':
+            pic_id = getattrd(self.data, 'meta.image.id')
+            if pic_id:
+                try:
+                    Picture.objects.filter(pk=pic_id).delete()
+                except Picture.DoesNotExist:
+                    pass
+
+
+        super().delete(*args,**kwargs)
 
 class Tag(models.Model):
     title               = models.CharField(_('Title'),max_length=250, blank=True)    
@@ -133,28 +195,40 @@ class Info(models.Model):
 
 
 class Picture(models.Model):
+    PICTURE_TYPE = (
+        ('default', 'default'), 
+        ('for_url', 'for_url'),
+    )
+
+    type = models.CharField( max_length=20, choices=PICTURE_TYPE, default='default' )
     # default upload directory
-    path_and_rename     = PathAndRename('uploads/images/').wrapper
+    path_and_rename = PathAndRename('uploads/images/').wrapper
     # upload directory for this model whan attached through content_object
-    _image_upload_dir   = 'uploads/picture_images/'
+    # _image_upload_dir   = 'uploads/picture_images/'
 
 
-    pic                 = models.ImageField(upload_to=path_and_rename)
-    original_filename   = models.CharField(_('Original filename'), max_length=250, blank=True)
+    pic = models.ImageField(upload_to=path_and_rename)
+    original_filename = models.CharField(_('Original filename'), max_length=250, blank=True)
 
-    title               = models.CharField(_('Title'),max_length=250, blank=True)
-    description         = models.TextField(_('Description'), blank=True)
+    title = models.CharField(_('Title'),max_length=250, blank=True)
+    description = models.TextField(_('Description'), blank=True)
+    size = models.PositiveIntegerField(blank=True, null=True)
+    width = models.PositiveIntegerField(blank=True, null=True)
+    height = models.PositiveIntegerField(blank=True, null=True)
 
-    content_type        = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id           = models.PositiveIntegerField()
-    content_object      = GenericForeignKey('content_type', 'object_id')
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, blank=True, null=True)
+    object_id = models.PositiveIntegerField(blank=True, null=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
 
-    thumbnail           = ImageSpecField(source='pic', processors=[ResizeToFill(620, 490)], format='webp', options={'quality': 80} )
-    thumbnail_square    = ImageSpecField(source='pic', processors=[ResizeToFill(200, 200)], format='webp', options={'quality': 80} )
-    big_view            = ImageSpecField(source='pic', processors=[ResizeToFit(2048,1363)], format='webp', options={'quality': 80} )
-    small_view          = ImageSpecField(source='pic', processors=[ResizeToFill(1024, 681)], format='webp', options={'quality': 80} )
+    thumbnail = ImageSpecField(source='pic', processors=[ResizeToFill(620, 490)], format='webp', options={'quality': 80} )
+    thumbnail_square = ImageSpecField(source='pic', processors=[ResizeToFill(200, 200)], format='webp', options={'quality': 80} )
+    big_view = ImageSpecField(source='pic', processors=[ResizeToFit(2048,1363)], format='webp', options={'quality': 80} )
+    small_view = ImageSpecField(source='pic', processors=[ResizeToFill(1024, 681)], format='webp', options={'quality': 80} )
 
-    info                = models.ForeignKey('Info', on_delete=models.CASCADE, blank=True, null=True)
+    is_tmp = models.BooleanField(_('Temporary image'), default=False)
+    session_key = models.CharField(_('Session key'), max_length=64, blank=True, null=True)
+
+    info = models.ForeignKey('Info', on_delete=models.CASCADE, blank=True, null=True)
  
 
     def save(self,*args,**kwargs):     
