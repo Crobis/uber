@@ -45,7 +45,8 @@ def decode_block(block, theme='default'):
     if block.type == 'paragraph':
         return '<p>{}</p>'.format(block.data['text'])
 
-        
+    elif block.type == 'header':
+        return '<h{level}>{text}</h{level}>'.format(text=block.data['text'], level=block.data['text'])
 
     elif block.type == 'linkTool':
         if block.data['meta']:
