@@ -88,7 +88,6 @@ class Note(models.Model):
         if self.id > 12:
             blocks = Block.objects.filter(note=self)
             for block in blocks:
-                print('block', block)
                 lines += decode_block(block)
             return lines
         else:

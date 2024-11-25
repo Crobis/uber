@@ -51,7 +51,7 @@ def decode_block(block, theme='default'):
         if block.data['meta']:
             # print(block.data['meta'])
             image = ''
-            if 'image' in block.data['meta']:
+            if 'image' in block.data['meta'] and block.data['meta']['image']:
                 if 'id' in block.data['meta']['image']:
                     
                     image = Picture.objects.filter(pk=block.data['meta']['image']['id']).first()
@@ -62,7 +62,7 @@ def decode_block(block, theme='default'):
                 else:
                     image = block.data['meta']['image']['url']
 
-            print('image',image)
+            # print('image',image)
             return '''
                 <div class="card linktool compact">                   
                     <div class="card-body">
