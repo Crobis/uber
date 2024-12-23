@@ -31,3 +31,16 @@ def getattrd(dictionary, keys, default=None):
         else:
             return default
     return dictionary
+
+def cast_tuple(value):
+
+    if not value:
+        return None 
+
+    try:
+        return tuple(
+            tuple(item.strip("() ").split(","))
+            for item in value.split("), (")
+        )
+    except Exception as e:
+        raise ValueError(f"Invalid tuple format: {value}") from e

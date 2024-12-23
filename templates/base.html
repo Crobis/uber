@@ -144,7 +144,7 @@
     </style>
     {% endblock %}
 </head>
-<body>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     
 <div class="container mb-4">
 <!-- <header class="blog-header py-3"></header> -->

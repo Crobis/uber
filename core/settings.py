@@ -9,28 +9,32 @@ https://docs.djangoproject.com/en/dev/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
-import os
 from pathlib import Path
+from decouple import config, Csv
+from dj_database_url import parse as db_url
+from django.conf import settings
+from .helpers import cast_tuple
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+ADMINS = config('ADMINS', default=None, cast=cast_tuple )
+DEBUG = config('DEBUG', default=False, cast=bool)
+RUNING = config('RUNING', default='production')
+SECRET_KEY = config('SECRET_KEY')
 
+SESSION_COOKIE_NAME = config('SESSION_COOKIE_NAME', default='sessionid')
+SESSION_COOKIE_NAME = config('SESSION_CACHE_ALIAS', default='default')
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=False, cast=bool)
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_HTTPONLY', default=True, cast=bool)
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_DOMAIN', default=None)
 
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=None, cast=Csv())
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default=None, cast=Csv())
+CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=False, cast=bool)
+INTERNAL_IPS = config('INTERNAL_IPS', default=None, cast=Csv())
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/dev/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-
-
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -167,26 +171,68 @@ MULTILANG_ADMIN = False
 # obfuscate ids
 # https://dev.to/ndrbrt/obfuscate-django-models-ids-by-encoding-them-as-non-sequential-non-predictable-strings-4pa
 
+
+HASHIDS = {
+    'salt': config('HASHIDS_SALT'),
+    'min_length': 11
+}
+
+# DEBUG	- Detailed information, typically useful for diagnosing problems during development.
+# INFO - General information about the application's operation, such as confirmation that things are working as expected.
+# WARNING - Indicates a potential problem or unexpected situation that doesn't stop the application but may require attention.
+# ERROR	- A serious problem that has caused some part of the application to fail.
+# CRITICAL - A very serious error indicating that the application may not be able to continue running.
+
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': False,  # Keep existing loggers enabled
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'console': {
+            'level': config('LOG_LEVEL_CONSOLE', default='INFO'),  # Console log level from .env
             'class': 'logging.StreamHandler',
+            'formatter': 'verbose',  # Use the 'verbose' formatter
         },
-        'file': {
-            'level': 'DEBUG',
+        'error_file': {
+            'level': config('LOG_LEVEL_ERROR_FILE', default='ERROR'),  # Error log level from .env
             'class': 'logging.FileHandler',
-            'filename': 'debug.log',
+            'filename': config('ERROR_LOG_FILE', default='django_error.log'),  # Path from .env
+            'formatter': 'verbose',
+        },
+        'general_file': {
+            'level': config('LOG_LEVEL_GENERAL_FILE', default='INFO'),  # General log level from .env
+            'class': 'logging.FileHandler',
+            'filename': config('GENERAL_LOG_FILE', default='django_general.log'),  # Path from .env
+            'formatter': 'verbose',
         },
     },
-    'root': {
-        'handlers': ['console', 'file'],
-        'level': 'WARNING', # DEBUG, INFO, WARNING, ERROR, CRITICAL
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'error_file', 'general_file'],  # Handlers for this logger
+            'level': config('DJANGO_LOG_LEVEL', default='INFO'),  # Overall logger level from .env
+            'propagate': True,
+        },
     },
 }
+
+DATABASES = {
+    'default': config(
+        'DEFAULT_DATABASE_URL',
+        cast=db_url
+    ),
+}
+
+
 
 LOGIN_URL = "/login/"
 
 
-from .local_settings import *
